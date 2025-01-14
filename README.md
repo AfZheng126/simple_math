@@ -74,5 +74,30 @@ Replace /path/to/rust/ with the actual path to your Rust project directory.
 -L specifies the path to the compiled Rust shared library.
 -l tells the compiler to link with the rust_mex library.
 
-## Conclusion
+## 6. Conclusion
 All functions written in the `lib.rs` can be called by MATLAB.
+
+## 7. Calling the functions now in Rust main.rs
+If you want to call the function in Rust, you need to link to the C dynamic library in `main.rs` file. To do this, first add `libloading` to your dependencies in `Cargo.toml`.
+```
+[dependencies]
+libloading = "0.7"
+```
+Then in `main.rs`, load the shared library and call the function
+```
+use libloading::{Library, Symbol};
+
+fn main() {
+
+    unsafe {
+        // Load the shared library
+        let lib = Library::new("target/release/libmy_project.so").expect("Failed to load library");
+
+        // Get the symbol (function) from the library
+        let my_function: Symbol<unsafe extern "C" fn()> = lib.get(b"my_function").expect("Failed to load function");
+
+        // Call the function
+        my_function();
+    }
+}
+```
