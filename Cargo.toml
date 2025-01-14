@@ -1,0 +1,9 @@
+[package]
+name = "simple_math"
+version = "0.1.0"
+edition = "2025"
+
+[dependencies]
+
+[lib]
+crate-type = ["cdylib"]
