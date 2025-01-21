@@ -101,3 +101,8 @@ fn main() {
     }
 }
 ```
+
+
+# How to use Gmesh
+
+First, use a .geo file to create a script defining the lines, curves, surfaces, and the mesh properties. Then load the .geo file into gmesh and click 2D under Mesh to generate the 2D mesh. Now click export with Version 2 ASCII and save as a .msh file without including the non-mesh elements. Finally read the data in Matlab using this [guide](https://victorsndvg.github.io/FEconv/formats/gmshmsh.xhtml). 
