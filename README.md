@@ -26,7 +26,7 @@ Run
 ```
 cargo build --release
 ```
-and copy the `.dll` file (or `.so`, `.dylib` if not using windows) into a path that can be found by C/C++.
+and copy the `.so` file (or `.dll` for windows, `.dylib` for apple) into a path that can be found by C/C++.
 
 ## 4. Create the C Wrapper for MEX
 
@@ -35,7 +35,7 @@ Create a new file `mex_wrapper.c`:
 #include "mex.h"
 
 // Declare the Rust function signature
-extern double function_name(double a, double b);
+extern double add_numbers(double a, double b);
 
 // The MEX function interface
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -48,31 +48,22 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double b = mxGetScalar(prhs[1]);
 
     // Call the Rust function
-    double result = function_name(a, b);
+    double result = add_numbers(a, b);
 
     // Return the result to MATLAB
     plhs[0] = mxCreateDoubleScalar(result);
 }
 ```
-If it doesn't work, maybe you need to also include
-```
-// Load the DLL
-    HMODULE hLib = LoadLibrary("my_rust_lib.dll");
-    if (hLib == NULL) {
-        mexErrMsgIdAndTxt("MATLAB:sum_elements:loadLibrary", "Failed to load the DLL.");
-    }
-```
-This allows C to find the `.dll` file.
+This allows C to get functions from the `.so` file.
 
 ## 5. Compile the MEX Function
 Open MATLAB and run the following command, specifying the paths to the Rust shared library and the C wrapper:
 ```
-mex -I/path/to/rust/include -L/path/to/rust/target/release -lrust_mex mex_wrapper.c
+mex -L. path_to_so_file.so mex_wrapper.c
 ```
-Replace /path/to/rust/ with the actual path to your Rust project directory.
--I specifies the include path for any headers.
--L specifies the path to the compiled Rust shared library.
--l tells the compiler to link with the rust_mex library.
+`-L.` specifies that the library (.so file) is in the current directory.
+Sometimes, you may also want to include `-ldl -lpthread`, which are common system dependencies for shared libraries and dynamic loading. However, this simple example does not require it.
+
 
 ## 6. Conclusion
 All functions written in the `lib.rs` can be called by MATLAB.
